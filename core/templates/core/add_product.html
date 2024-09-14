@@ -1,0 +1,161 @@
+{% extends "core/main.html" %}
+{% load static %}
+
+{% block title %}
+    ADD
+{% endblock %}
+
+{% block navbar_name %}
+    ADD NEW STOCK
+{% endblock %}
+
+{% block content %}
+
+<!-- Spacing for content below navbar -->
+<div class="mt-5 pt-5"></div>
+
+<style>
+    /* Form Container Styling */
+    .register-form-container {
+        margin: 5% auto;
+        padding: 40px;
+        max-width: 600px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1.2s ease-in-out forwards; /* Retain the final animation state */
+    }
+
+    /* Form Heading */
+    .register-form-container h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-size: 28px;
+        color: #ff5a5f;
+    }
+
+    /* Input Field Styling */
+    .form-control {
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #ff5a5f;
+        box-shadow: 0 0 5px rgba(255, 90, 95, 0.5);
+    }
+
+    /* Button Styling */
+    .register-btn {
+        background-color: #ff5a5f;
+        border: none;
+        color: white;
+        padding: 14px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .register-btn:hover {
+        background-color: #ff7b7f;
+    }
+
+    /* Already have an account link */
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+
+    .login-link a {
+        color: #ff5a5f;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+        color: #ff7b7f;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="register-form-container fade-in">
+        <h3>ADD New Product</h3>
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" name="name" id="name" class="form-control" placeholder="EG: T-shirt (Dropshoulder)" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="color" class="form-label">Color</label>
+                <input type="text" name="color" id="color" class="form-control" placeholder="Color" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="GSM" class="form-label">GSM</label>
+                <input type="number" name="GSM" id="GSM" class="form-control" placeholder="GSM Count" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="buying_price" class="form-label">Buying Price</label>
+                <input type="number" name="buying_price" id="buying_price" class="form-control" placeholder="Average Buying Rate" required>
+            </div>
+            <div class="mb-3">
+                <label for="price" class="form-label">Selling Price</label>
+                <input type="number" name="price" id="price" class="form-control" placeholder="Fixed Selling rate" required>
+            </div>
+            <div class="mb-3">
+                <label for="available" class="form-label">Quantity</label>
+                <input type="number" name="available" id="available" class="form-control" placeholder="How many pieces available?" required>
+            </div>
+            <div class="mb-3">
+                <label for="size" class="form-label">Size</label>
+                <select name="size" id="size" class="form-control" required>
+                    <option value="" disabled selected>Select a Size</option>
+                    <option value="s">S</option>
+                    <option value="m">M</option>
+                    <option value="l">L</option>
+                    <option value="xl">XL</option>
+                    <option value="xxl">XXL</option>
+                    <option value="xxxl">XXXL</option>
+                </select>
+            </div>
+
+            <button type="submit" class="register-btn">Submit</button>
+        </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

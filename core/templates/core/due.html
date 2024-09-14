@@ -1,0 +1,135 @@
+{% extends "core/main.html" %}
+{% load static %}
+
+{% block title %}
+    Due
+{% endblock %}
+
+{% block navbar_name %}
+    Vendor Due List
+{% endblock %}
+
+{% block content %}
+
+<!-- Spacing for content below navbar -->
+<div class="mt-5 pt-5"></div>
+
+<style>
+    /* Form Container Styling */
+    .register-form-container {
+        margin: 5% auto;
+        padding: 40px;
+        max-width: 600px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1.2s ease-in-out forwards; /* Retain the final animation state */
+    }
+
+    /* Form Heading */
+    .register-form-container h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-size: 28px;
+        color: #ff5a5f;
+    }
+
+    /* Input Field Styling */
+    .form-control {
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #ff5a5f;
+        box-shadow: 0 0 5px rgba(255, 90, 95, 0.5);
+    }
+
+    /* Button Styling */
+    .register-btn {
+        background-color: #ff5a5f;
+        border: none;
+        color: white;
+        padding: 14px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .register-btn:hover {
+        background-color: #ff7b7f;
+    }
+
+    /* Already have an account link */
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+
+    .login-link a {
+        color: #ff5a5f;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+        color: #ff7b7f;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<!-- Register Form -->
+<div class="container">
+    <div class="row mt-5">
+        <!-- Card 1 -->
+        <div class="col-md-12">
+            <div class="card text-center shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">List Of Dues</h5><br>
+                    <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th scope="col">Mobile Banking</th>
+                            <th scope="col">Personal Number</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for due in dues %}
+                          <tr>
+                            <td>{{due.mobile_banking}}</td>
+                            <td>0{{due.mobile_banking_number}}</td>
+                            <td>{{due.due}} TAKA</td>
+                            <td><a href="{% url 'paid' due.id %}"><button type="button" class="btn btn-success">Mark As Paid</button></a></td>
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

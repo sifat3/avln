@@ -1,0 +1,172 @@
+
+{% extends "core/main.html" %}
+{% load static %}
+
+{% block title %}
+    Update
+{% endblock %}
+
+{% block navbar_name %}
+    Profile Edit
+{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+
+<style>
+    /* Form Container Styling */
+    .register-form-container {
+        margin: 5% auto;
+        padding: 40px;
+        max-width: 600px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1.2s ease-in-out forwards; /* Retain the final animation state */
+    }
+
+    /* Form Heading */
+    .register-form-container h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-size: 28px;
+        color: #ff5a5f;
+    }
+
+    /* Input Field Styling */
+    .form-control {
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #ff5a5f;
+        box-shadow: 0 0 5px rgba(255, 90, 95, 0.5);
+    }
+
+    /* Button Styling */
+    .register-btn {
+        background-color: #ff5a5f;
+        border: none;
+        color: white;
+        padding: 14px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .register-btn:hover {
+        background-color: #ff7b7f;
+    }
+
+    /* Already have an account link */
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+
+    .login-link a {
+        color: #ff5a5f;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+        color: #ff7b7f;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<br><br><br>
+<!-- Profile edit start -->
+ {% if query == 'profile' %}
+<div class="container">
+    <div class="register-form-container fade-in">
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <h3>Update your informations:</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" name="name" id="name" class="form-control" value="{{ user.profile.name }}" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="brand_name" class="form-label">Brand Name</label>
+                <input type="text" name="brand_name" id="brand_name" class="form-control" value="{{ user.profile.brand_name }}" placeholder="Enter your Brand's Name" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="page_link" class="form-label">Business Page</label>
+                <input type="link" name="page_link" id="page_link" class="form-control" value="{{ user.profile.page_link }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="mobile_banking" class="form-label">Mobile Banking Platform</label>
+            <select name="mobile_banking" id="mobile_banking" class="form-control" required>
+                {% if user.profile.mobile_banking == 'Bkash' %}
+                <option value="Bkash">Bkash</option>
+                <option value="Nagad">Nagad</option>
+                <option value="Rocket">Rocket</option>
+                <option value="Upay">Upay</option>
+                {% elif user.profile.mobile_banking == 'Nagad' %}
+                <option value="Nagad">Nagad</option>
+                <option value="Bkash">Bkash</option>
+                <option value="Rocket">Rocket</option>
+                <option value="Upay">Upay</option>
+                {% elif user.profile.mobile_banking == 'Rocket' %}
+                <option value="Rocket">Rocket</option>
+                <option value="Nagad">Nagad</option>
+                <option value="Bkash">Bkash</option>
+                <option value="Upay">Upay</option>
+                {% elif user.profile.mobile_banking == 'Upay' %}
+                <option value="Upay">Upay</option>
+                <option value="Rocket">Rocket</option>
+                <option value="Nagad">Nagad</option>
+                <option value="Bkash">Bkash</option>
+                {% endif %}
+                
+            </select> 
+            </div>
+            <div class="mb-3">
+                <label for="mobile_banking_number" class="form-label">Mobile Banking Number</label>
+                <input type="text" name="mobile_banking_number" id="mobile_banking_number" class="form-control" value="0{{ user.profile.mobile_banking_number }}" required>
+            </div>
+
+            <button type="submit" class="register-btn">Submit</button>
+        </form></div></div>
+        {% endif %}
+<!-- Profile edit End -->
+
+
+        {% endif %}
+{% endblock %}

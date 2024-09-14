@@ -1,0 +1,262 @@
+{% extends "core/main.html" %}
+{% load static %}
+
+{% block title %}
+    Order
+{% endblock %}
+
+{% block navbar_name %}
+    Create a New Order
+{% endblock %}
+
+{% block content %}
+
+<div class="mt-5 pt-5"></div>
+
+<style>
+    /* Form Container Styling */
+    .register-form-container {
+        margin: 5% auto;
+        padding: 40px;
+        max-width: 600px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1.2s ease-in-out forwards; /* Retain the final animation state */
+    }
+
+    /* Form Heading */
+    .register-form-container h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-size: 28px;
+        color: #ff5a5f;
+    }
+
+    /* Input Field Styling */
+    .form-control {
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #ff5a5f;
+        box-shadow: 0 0 5px rgba(255, 90, 95, 0.5);
+    }
+
+    /* Button Styling */
+    .register-btn {
+        background-color: #ff5a5f;
+        border: none;
+        color: white;
+        padding: 14px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .register-btn:hover {
+        background-color: #ff7b7f;
+    }
+
+    /* Already have an account link */
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+
+    .login-link a {
+        color: #ff5a5f;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+        color: #ff7b7f;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+
+<div class="container">
+    <div class="register-form-container fade-in">
+        <h3>Place your order</h3>
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        {% endif %}
+        </ul>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="product" class="form-label">Select a Product</label>
+                <select name="product" id="product" class="form-control" required>
+                    <option value="" disabled selected>Select a product</option>
+                    {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }} - {{ product.color }} Color - {{ product.price }} TAKA - {{ product.available }} Pcs Available</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" name="quantity" id="quantity" class="form-control" placeholder="How many you want to order?" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="front_print" class="form-label">Front Print</label>
+                <select name="front_print" id="front_print" class="form-control">
+                    <option value="" disabled selected>Select a print size</option>
+                        <option value="a4">A4 - 50 TAKA</option>
+                        <option value="a3">A3 - 80 TAKA</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="front_design" class="form-label">Front Design</label>
+                <input type="file" accept=".png" name="front_design" id="front_design" class="form-control" placeholder="Upload transparent front design(PNG)">
+            </div>
+
+            <div class="mb-3">
+                <label for="back_print" class="form-label">Back Print</label>
+                <select name="back_print" id="back_print" class="form-control">
+                    <option value="" disabled selected>Select a print size</option>
+                        <option value="a4">A4 - 50 TAKA</option>
+                        <option value="a3">A3 - 80 TAKA</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="back_design" class="form-label">Back Design</label>
+                <input type="file" accept=".png" name="back_design" id="back_design" class="form-control" placeholder="Upload transparent back design(PNG)">
+            </div>
+
+            <div class="mb-3">
+                <label for="mockup_front" class="form-label">Mockup Front</label>
+                <input type="file" name="mockup_front" id="mockup_front" class="form-control" placeholder="Upload Front Mockup">
+            </div>
+
+            <div class="mb-3">
+                <label for="mockup_back" class="form-label">Mockup Back</label>
+                <input type="file" name="mockup_back" id="mockup_back" class="form-control" placeholder="Upload Back Mockup">
+            </div>
+
+            <p>Heat Press One Side = 10 TAKA, Both Sides = 15 TAKA</p>
+            <h4>Customer Details</h4>
+            <div class="mb-3">
+                <label for="collection_amount" class="form-label">Collection Amount</label>
+                <input type="number" name="collection_amount" id="collection_amount" class="form-control" placeholder="Your customer will pay this amount" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="customer_name" class="form-label">Customer Name</label>
+                <input type="text" name="customer_name" id="customer_name" class="form-control" placeholder="Your customer's full Name" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="customer_full_address" class="form-label">Customer Address</label>
+                <input type="text" name="customer_full_address" id="customer_full_address" class="form-control" placeholder="Customer's Full Address" required>
+            </div>
+            <div class="mb-3">
+                <label for="customer_full_address" class="form-label">Customer District</label>
+                <select name="customer_city" id="customer_city" class="form-control" required>
+                    <option value="" disabled selected>Select a District</option>
+                    <option value="Bagerhat">Bagerhat</option>
+                    <option value="Bandarban">Bandarban</option>
+                    <option value="Barguna">Barguna</option>
+                    <option value="Barisal">Barisal</option>
+                    <option value="Bhola">Bhola</option>
+                    <option value="Bogra">Bogra</option>
+                    <option value="Brahmanbaria">Brahmanbaria</option>
+                    <option value="Chandpur">Chandpur</option>
+                    <option value="Chittagong">Chittagong</option>
+                    <option value="Chuadanga">Chuadanga</option>
+                    <option value="Comilla">Comilla</option>
+                    <option value="Cox'sBazar">Cox'sBazar</option>
+                    <option value="Dhaka">Dhaka</option>
+                    <option value="Dinajpur">Dinajpur</option>
+                    <option value="Faridpur">Faridpur</option>
+                    <option value="Feni">Feni</option>
+                    <option value="Gaibandha">Gaibandha</option>
+                    <option value="Gazipur">Gazipur</option>
+                    <option value="Gopalganj">Gopalganj</option>
+                    <option value="Habiganj">Habiganj</option>
+                    <option value="Jaipurhat">Jaipurhat</option>
+                    <option value="Jamalpur">Jamalpur</option>
+                    <option value="Jessore">Jessore</option>
+                    <option value="Jhalokati">Jhalokati</option>
+                    <option value="Jhenaidah">Jhenaidah</option>
+                    <option value="Khagrachari">Khagrachari</option>
+                    <option value="Khulna">Khulna</option>
+                    <option value="Kishoreganj">Kishoreganj</option>
+                    <option value="Kurigram">Kurigram</option>
+                    <option value="Kushtia">Kushtia</option>
+                    <option value="Lakshmipur">Lakshmipur</option>
+                    <option value="Lalmonirhat">Lalmonirhat</option>
+                    <option value="Madaripur">Madaripur</option>
+                    <option value="Magura">Magura</option>
+                    <option value="Manikganj">Manikganj</option>
+                    <option value="Maulvibazar">Maulvibazar</option>
+                    <option value="Meherpur">Meherpur</option>
+                    <option value="Munshiganj">Munshiganj</option>
+                    <option value="Mymensingh">Mymensingh</option>
+                    <option value="Naogaon">Naogaon</option>
+                    <option value="Narail">Narail</option>
+                    <option value="Narayanganj">Narayanganj</option>
+                    <option value="Narsingdi">Narsingdi</option>
+                    <option value="Natore">Natore</option>
+                    <option value="Nawabganj">Nawabganj</option>
+                    <option value="Netrokona">Netrokona</option>
+                    <option value="Nilphamari">Nilphamari</option>
+                    <option value="Noakhali">Noakhali</option>
+                    <option value="Pabna">Pabna</option>
+                    <option value="Panchagarh">Panchagarh</option>
+                    <option value="Patuakhali">Patuakhali</option>
+                    <option value="Pirojpur">Pirojpur</option>
+                    <option value="Rajbari">Rajbari</option>
+                    <option value="Rajshahi">Rajshahi</option>
+                    <option value="Rangamati">Rangamati</option>
+                    <option value="Rangpur">Rangpur</option>
+                    <option value="Satkhira">Satkhira</option>
+                    <option value="Shariatpur">Shariatpur</option>
+                    <option value="Sherpur">Sherpur</option>
+                    <option value="Sirajganj">Sirajganj</option>
+                    <option value="Sunamganj">Sunamganj</option>
+                    <option value="Sylhet">Sylhet</option>
+                    <option value="Tangail">Tangail</option>
+                    <option value="Thakurgaon">Thakurgaon</option>
+            </select>
+            </div>
+            <p>Delivery Charge: Inside Dhaka 70 TAKA, Outside Dhaka 120 TAKA</p>
+            <div class="mb-3">
+                <label for="customer_phone" class="form-label">Customer Phone</label>
+                <input type="text" name="customer_phone" id="customer_phone" class="form-control" placeholder="Customer's Phone Number" required>
+            </div>
+            <button type="submit" class="register-btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,485 @@
+{% extends "core/main.html" %}
+{% load static %}
+
+{% block title %}
+    Vendor Area
+{% endblock %}
+
+{% block navbar_name %}
+    Vendor Dashboard
+{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+    {% if user.profile.role != "vendor" %}
+    <script type="text/javascript">
+        window.location.href = "{% url 'manager' %}"; 
+    </script>
+    {% endif %}
+
+    <br><br><br><br>
+
+    <style>
+      /* Form Container Styling */
+      .register-form-container {
+          margin: 5% auto;
+          padding: 40px;
+          max-width: 600px;
+          background-color: #f9f9f9;
+          border-radius: 10px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          animation: fadeIn 1.2s ease-in-out forwards; /* Retain the final animation state */
+      }
+  
+      /* Form Heading */
+      .register-form-container h3 {
+          text-align: center;
+          margin-bottom: 30px;
+          font-weight: bold;
+          font-size: 28px;
+          color: #ff5a5f;
+      }
+  
+      /* Input Field Styling */
+      .form-control {
+          padding: 12px;
+          margin-bottom: 20px;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+          font-size: 16px;
+          transition: border-color 0.3s;
+      }
+  
+      .form-control:focus {
+          border-color: #ff5a5f;
+          box-shadow: 0 0 5px rgba(255, 90, 95, 0.5);
+      }
+  
+      /* Button Styling */
+      .register-btn {
+          background-color: #ff5a5f;
+          border: none;
+          color: white;
+          padding: 14px;
+          font-size: 18px;
+          font-weight: bold;
+          border-radius: 5px;
+          width: 100%;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+      }
+  
+      .register-btn:hover {
+          background-color: #ff7b7f;
+      }
+  
+      /* Already have an account link */
+      .login-link {
+          text-align: center;
+          margin-top: 20px;
+          font-size: 16px;
+      }
+  
+      .login-link a {
+          color: #ff5a5f;
+          font-weight: bold;
+          transition: color 0.3s ease;
+      }
+  
+      .login-link a:hover {
+          color: #ff7b7f;
+      }
+  
+      /* Animation */
+      @keyframes fadeIn {
+          0% {
+              opacity: 0;
+              transform: translateY(30px);
+          }
+          100% {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+  </style>
+
+  {% if user.profile.is_verified %}
+       <div class="container">
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="row mt-5">
+            <!-- Card 1 -->
+            <div class="col-md-6">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">@{{ user.username }}!</h5>
+                        <p class="card-text">Name: {{ user.profile.name }}</p>
+                        <p class="card-text">Brand: {{ user.profile.brand_name }} - Page: {{ user.profile.page_link }}</p>
+                        <a href="{% url 'update_profile' %}"><button type="submit" class="register-btn">Update Profile Info</button></a>
+                    </div>
+                </div>
+            </div>
+      
+            <!-- Card 2 -->
+            <div class="col-md-6">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">Order</h5>
+                        <p class="card-text">You are qualified to place POD orders.</p>
+                        <p class="card-text">Click the button below to place a "Print On Demand" Order</p>
+                        <a href="{% url 'place_single_order' %}"><button type="submit" class="register-btn">Place an Order</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <!-- Card 1 -->
+            <div class="col-md-6">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Earning till last month: {{ user.profile.total_profit }} TAKA</h5>
+                        <h5 class="card-title">Earning in {{ month }}: {{ user.profile.profit }} TAKA</h5>
+                    </div>
+                </div>
+            </div>
+      
+            <!-- Card 2 -->
+            <div class="col-md-6">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">Current Due: {{ user.profile.due }} TAKA</h5>
+                        <p style="margin: 1.25%;" class="card-text">Mobile Banking: {{ user.profile.mobile_banking }} | Personal Number: 0{{ user.profile.mobile_banking_number }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="row mt-5">
+        <!-- Card 1 -->
+        <div class="col-md-12">
+            <div class="card text-center shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Past Orders</h5><br>
+                    <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th scope="col">Order ID</th>
+                            <th scope="col">Order Date</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Profit</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for order in orders %}
+                          <tr>
+                            <td>00{{order.id}}</td>
+                            <td>{{order.order_date.date}}</td>
+
+                            {% if order.is_printed %}
+                            <td>Printed</td>
+                            {% elif order.is_shipped %}
+                            <td>Shipped</td>
+                            {% elif order.order_confirmed %}
+                            <td>Confirmed</td>
+                            {% elif order.is_cancel %}
+                            <td>Calcelled</td>
+                            {% else %}
+                            <td>Pending Confirmation</td>
+                            {% endif %}
+
+                            <td>{{order.vendor_profit}} TAKA</td>
+                            {% if order.order_confirmed %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'order_cancel' order.id %}"><button type="button" class="btn btn-danger">Cancel</button></a></td>
+                            {% elif order.is_printed %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a></td>
+                            {% elif order.is_shipped %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a></td>
+                            {% elif order.is_cancel %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a></td>
+                            {% else %}
+                            <td><a href="{% url 'order_confirm' order.id %}"><button type="button" class="btn btn-success">Confirm</button></a> <a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'order_cancel' order.id %}"><button type="button" class="btn btn-danger">Cancel</button></a></td>
+                            {% endif %}
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><br><br><br>
+  {% else %}
+  {% if user.profile.verification_applied %}
+
+  <div class="container"><div class="row mt-5">
+    <!-- Card 1 -->
+    <div class="col-md-6">
+        <div class="">
+            <div class="card-body">
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="col-md-6">
+        <div class="">
+            <div class="card-body">
+
+            </div>
+        </div>
+    </div>
+</div></div>
+<div class="container"><div class="row mt-5">
+  <!-- Card 1 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+</div></div>
+<div class="container"><div class="row mt-5">
+  <!-- Card 1 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+</div></div>
+<div class="container"><div class="row mt-5">
+  <!-- Card 1 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+</div></div>
+<div class="container"><div class="row mt-5">
+  <!-- Card 1 -->
+  <div class="col-md-12">
+      <div class="card text-center shadow-lg">
+          <div class="card-body text-center">
+              <h5 class="card-title">Welcome, {{ user.username }}!</h5>
+              <p class="card-text">We are currently reviewing your submission. Your profile will be activated soon. Thank You.</p>
+          </div>
+      </div>
+  </div>
+</div></div>
+<div class="container"><div class="row mt-5"></div>
+  <!-- Card 1 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+</div></div>
+<div class="container"><div class="row mt-5"></div>
+  <!-- Card 1 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+</div></div>
+<div class="container"><div class="row mt-5"></div>
+  <!-- Card 1 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="col-md-6">
+      <div class="">
+          <div class="card-body">
+
+          </div>
+      </div>
+  </div>
+</div></div>
+<br><br><br>
+
+  {% else %}
+         <div class="container"><div class="row mt-5">
+          <!-- Card 1 -->
+          <div class="col-md-12">
+              <div class="card text-center shadow-lg">
+                  <div class="card-body">
+                      <h5 class="card-title">Welcome, {{ user.username }}!</h5>
+                      <p class="card-text">Thank you for signing up! Please provide the informations below to get started.</p>
+                      <p class="card-text">We will review your informations. And make you verified.</p>
+                      <p class="card-text">Thank you for your patience. Get in touch with us, if you need help.</p>
+                  </div>
+              </div>
+          </div>
+      </div></div>
+      <div class="container">
+        <div class="register-form-container fade-in">
+            <h3>Please Provide these informations</h3>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="Enter your Full name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="brand_name" class="form-label">Brand Name</label>
+                    <input type="text" name="brand_name" id="brand_name" class="form-control" placeholder="Enter your Brand's Name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="page_link" class="form-label">Business Page</label>
+                    <input type="link" name="page_link" id="page_link" class="form-control" placeholder="Enter your Facebook/Instagram page link" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="mobile_banking" class="form-label">Mobile Banking Platform</label>
+                <select name="mobile_banking" id="mobile_banking" class="form-control" required>
+                    <option value="" disabled selected>Select</option>
+                    <option value="Bkash">Bkash</option>
+                    <option value="Nagad">Nagad</option>
+                    <option value="Rocket">Rocket</option>
+                    <option value="Upay">Upay</option>
+                </select> 
+                </div>
+
+                <div class="mb-3">
+                    <label for="mobile_banking_number" class="form-label">Mobile Banking Number</label>
+                    <input type="text" name="mobile_banking_number" id="mobile_banking_number" class="form-control" placeholder="Personal Number for prefered Mobile Banking" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="nid" class="form-label">Upload NID</label>
+                    <input type="file" name="nid" id="nid" class="form-control" required>
+                </div>
+    
+                <button type="submit" class="register-btn">Submit</button>
+            </form>
+            <script>
+              function myFunction() {
+                  var x = 
+                      document.getElementById(
+                        "nid").required;
+                  document.getElementById("demo").innerHTML = x;
+              }
+          </script>
+        </div>
+    </div>
+    </div></div><br><br><br>  
+    {% endif %}
+  {% endif %}
+
+
+{% else %}
+
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="fade-in">Get the Best DTF Printing Service</h1>
+      <p class="fade-in" style="animation-delay: 0.5s;">Create your vendor account and get started today!</p>
+      <a href="{% url 'vendor_register' %}"><button class="cta-btn fade-in" style="animation-delay: 1s;">Sign Up as Vendor</button></a>
+      <a href=""><button class="cta-btn fade-in" style="animation-delay: 1.2s;">Learn More</button></a>
+    </div>
+  </section>
+
+<section class="container mt-5">
+  <h2 class="section-heading">Our Specialities</h2>
+  <div class="row text-center">
+    <div class="col-md-4">
+      <div class="service-card p-4">
+        <img src="https://cdn-icons-png.flaticon.com/512/310/310831.png" alt="High-Quality Printing" class="service-icon mb-3" width="50">
+        <h4 class="service-title">High-Quality Printing</h4>
+        <p class="service-description">We offer premium DTF printing services for apparel and accessories.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="service-card p-4">
+        <img src="https://cdn-icons-png.flaticon.com/512/487/487622.png" alt="Custom Orders" class="service-icon mb-3" width="50">
+        <h4 class="service-title">Custom Orders</h4>
+        <p class="service-description">Customize your orders and get exactly what you need for your brand.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="service-card p-4">
+        <img src="https://static-00.iconduck.com/assets.00/money-icon-2048x2048-q99hqr89.png" alt="Fast Turnaround" class="service-icon mb-3" width="50">
+        <h4 class="service-title">Fast Turnaround</h4>
+        <p class="service-description">We ensure quick and efficient delivery to meet your business needs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

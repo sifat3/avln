@@ -1,0 +1,128 @@
+{% extends "core/main.html" %}
+{% load static %}
+
+{% block title %}
+    Order Confirmation
+{% endblock %}
+
+{% block navbar_name %}
+    Confirm Your Order
+{% endblock %}
+
+{% block content %}
+
+<div class="mt-5 pt-5"></div>
+
+<style>
+    /* Form Container Styling */
+    .register-form-container {
+        margin: 5% auto;
+        padding: 40px;
+        max-width: 600px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1.2s ease-in-out forwards; /* Retain the final animation state */
+    }
+
+    /* Form Heading */
+    .register-form-container h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-size: 28px;
+        color: #ff5a5f;
+    }
+
+    /* Input Field Styling */
+    .form-control {
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #ff5a5f;
+        box-shadow: 0 0 5px rgba(255, 90, 95, 0.5);
+    }
+
+    /* Button Styling */
+    .register-btn {
+        background-color: #ff5a5f;
+        border: none;
+        color: white;
+        padding: 14px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .register-btn:hover {
+        background-color: #ff7b7f;
+    }
+
+    /* Already have an account link */
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+
+    .login-link a {
+        color: #ff5a5f;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+        color: #ff7b7f;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+
+<div class="container">
+    <div class="register-form-container fade-in text-center">
+        {% if order.advance_paid %}
+        <h5>Advance Payment Done! For Order ID: 000{{ order.id }} </h5>
+        <h5>Your order will be confirmed soon!</h5>
+        {% else %}
+        <h3>Confirm your order</h3>
+        <h5>Order ID: {{ order.id }}</h5>
+        <p>Total Price: {{ order.cost }} </p>
+        <p>Your Profit: {{ order.vendor_profit }}</p>
+        <p>Please Pay {{ order.advance_amount }} TK to confirm your order. </p>
+        <p>Scan the QR code or Use number - 01962008349</p>
+        <img src="{% static 'images/1.jpg' %}" alt="">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="payment_id" class="form-label"></label>
+                <input type="text" name="payment_id" id="payment_id" class="form-control" placeholder="Enter Transaction ID" required>
+            </div>
+
+            <button type="submit" class="register-btn">Submit</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

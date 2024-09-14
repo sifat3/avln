@@ -1,0 +1,390 @@
+{% extends "core/main.html" %}
+{% load static %}
+
+{% block title %}
+    MANAGEMENT
+{% endblock %}
+
+{% block navbar_name %}
+    Dashboard
+{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+    {% if user.profile.role == "vendor" %}
+    <script type="text/javascript">
+        window.location.href = "{% url 'user_panel' %}"; 
+    </script>
+    {% endif %}
+
+    <br><br><br><br>
+
+    <style>
+      /* Form Container Styling */
+      .register-form-container {
+          margin: 5% auto;
+          padding: 40px;
+          max-width: 600px;
+          background-color: #f9f9f9;
+          border-radius: 10px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          animation: fadeIn 1.2s ease-in-out forwards; /* Retain the final animation state */
+      }
+  
+      /* Form Heading */
+      .register-form-container h3 {
+          text-align: center;
+          margin-bottom: 30px;
+          font-weight: bold;
+          font-size: 28px;
+          color: #ff5a5f;
+      }
+  
+      /* Input Field Styling */
+      .form-control {
+          padding: 12px;
+          margin-bottom: 20px;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+          font-size: 16px;
+          transition: border-color 0.3s;
+      }
+  
+      .form-control:focus {
+          border-color: #ff5a5f;
+          box-shadow: 0 0 5px rgba(255, 90, 95, 0.5);
+      }
+  
+      /* Button Styling */
+      .register-btn {
+          background-color: #ff5a5f;
+          border: none;
+          color: white;
+          padding: 14px;
+          font-size: 18px;
+          font-weight: bold;
+          border-radius: 5px;
+          width: 100%;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+      }
+  
+      .register-btn:hover {
+          background-color: #ff7b7f;
+      }
+  
+      /* Already have an account link */
+      .login-link {
+          text-align: center;
+          margin-top: 20px;
+          font-size: 16px;
+      }
+  
+      .login-link a {
+          color: #ff5a5f;
+          font-weight: bold;
+          transition: color 0.3s ease;
+      }
+  
+      .login-link a:hover {
+          color: #ff7b7f;
+      }
+  
+      /* Animation */
+      @keyframes fadeIn {
+          0% {
+              opacity: 0;
+              transform: translateY(30px);
+          }
+          100% {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+  </style>
+    {% if user.profile.role == "manager" %}
+
+
+       <div class="container">
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if var %}
+        <a href="{% url 'clear_backend' %}"><h1>CLEAR</h1></a>
+        {% endif %}
+        <div class="row mt-5">
+            <!-- Card 1 -->
+            <div class="col-md-6">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <h5 style="padding-top: 3.1%;padding-bottom: 3.0%;" class="card-title">Company's Total Earning: {{ company.total_profit }} TAKA</h5>
+                    </div>
+                </div>
+            </div>
+      
+            <!-- Card 2 -->
+            <div class="col-md-6">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">This Week's Vendors Due: {{ company.total_due_vendors }} TAKA</h5>
+                        <a href="{% url 'due_list' %}"><button type="button" class="btn btn-success">View List</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <!-- Card 1 -->
+            <div class="col-md-12">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <p><b>{{month}}</b></p>
+                        <h5 class="card-title">Company's Profit: {{ company.profit }} TAKA  |  Company's Expense: {{ company.cost }} TAKA  |  Company's Waste: {{ company.waste }} TAKA</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <!-- Card 1 -->
+            <div class="col-md-12">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">Stock</h5>
+                        <table class="table table-striped">
+                            <thead>
+                              <tr>
+                                <th scope="col">Item</th>
+                                <th scope="col">Available</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {% for product in products %}
+                              <tr>
+                                <td>{{ product }}</td>
+                                <td>{{ product.available }}</td>
+                                <td><form method="post">{% csrf_token %} <input type="hidden" name="query" value="product"> <input type="hidden" name="product_id" value="{{ product.id }}"><input type="number" name="quantity"  class="form-control" required><button type="submit" class="register-btn">ADD</button></form> {% if product.available > 0 %}<a href="{% url 'product_waste' product.id %}"><button type="button" class="btn btn-success">WASTE</button></a>{% endif %}</td>
+                            {% endfor %}
+                              </tr>
+                              <tr>
+                                <td>A3 Paper</td>
+                                <td>{{ company.a3_paper }}</td>
+                                <td><form method="post">{% csrf_token %} <input type="hidden" name="query" value="paper"> <input type="hidden" name="product_id" value="a3"><input type="number" name="quantity"  class="form-control" required><button type="submit" class="register-btn">ADD</button></form> {% if company.a3_paper > 0 %}<a href="{% url 'stock_waste' 3 %}"><button type="button" class="btn btn-success">WASTE</button></a>{% endif %}</td>
+                              </tr>
+                              <tr>
+                                <td>A4 Paper</td>
+                                <td>{{ company.a4_paper }}</td>
+                                <td><form method="post">{% csrf_token %} <input type="hidden" name="query" value="paper"> <input type="hidden" name="product_id" value="a4"><input type="number" name="quantity"  class="form-control" required><button type="submit" class="register-btn">ADD</button></form> {% if company.a4_paper > 0 %}<a href="{% url 'stock_waste' 4 %}"><button type="button" class="btn btn-success">WASTE</button></a>{% endif %}</td>
+                              </tr>
+                              <tr>
+                                <td>White Ink</td>
+                                <td>{{ company.white_ink }}</td>
+                                <td><form method="post">{% csrf_token %}<input type="hidden" name="query" value="ink"> <input type="hidden" name="product_id" value="white"><button type="submit" class="register-btn">ADD</button></form></a> {% if company.white_ink > 0 %}<a href="{% url 'ink_use' 1 %}"><button type="button" class="btn btn-success">USE</button></a>{% endif %}</td>
+                              </tr>
+                              <tr>
+                                <td>Black Ink</td>
+                                <td>{{ company.black_ink }}</td>
+                                <td><form method="post">{% csrf_token %}<input type="hidden" name="query" value="ink"> <input type="hidden" name="product_id" value="black"><button type="submit" class="register-btn">ADD</button></form> {% if company.black_ink > 0 %}<a href="{% url 'ink_use' 2 %}"><button type="button" class="btn btn-success">USE</button></a>{% endif %}</td>
+                              </tr>
+                              <tr>
+                                <td>Cyan Ink</td>
+                                <td>{{ company.cyan_ink }}</td>
+                                <td><form method="post">{% csrf_token %}<input type="hidden" name="query" value="ink"> <input type="hidden" name="product_id" value="cyan"><button type="submit" class="register-btn">ADD</button></form> {% if company.cyan_ink > 0 %}<a href="{% url 'ink_use' 3 %}"><button type="button" class="btn btn-success">USE</button></a>{% endif %}</td>
+                              </tr>
+                              <tr>
+                                <td>Magenda Ink</td>
+                                <td>{{ company.magenda_ink }}</td>
+                                <td><form method="post">{% csrf_token %}<input type="hidden" name="query" value="ink"> <input type="hidden" name="product_id" value="magenta"><button type="submit" class="register-btn">ADD</button></form> {% if company.magenda_ink > 0 %}<a href="{% url 'ink_use' 4 %}"><button type="button" class="btn btn-success">USE</button></a>{% endif %}</td>
+                              </tr>
+                              <tr>
+                                <td>Yellow Ink</td>
+                                <td>{{ company.yellow_ink }}</td>
+                                <td><form method="post">{% csrf_token %}<input type="hidden" name="query" value="ink"> <input type="hidden" name="product_id" value="yellow"><button type="submit" class="register-btn">ADD</button></form> {% if company.yellow_ink > 0 %}<a href="{% url 'ink_use' 5 %}"><button type="button" class="btn btn-success">USE</button></a>{% endif %}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mt-5">
+            <!-- Card 1 -->
+            <div class="col-md-6">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <p><b>ADD NEW PRODUCT</b></p>
+                        <p>Add new stock item to the inventory.</p>
+                        <a href="{% url 'add_product' %}"><button style="margin-top: 2.0%;" type="button" class="register-btn">ADD</button></a>
+                    </div>
+                    <div class="card-body"><br>
+                        <p><b>Total Stock Investment: {{company.investment}} TAKA | Investment Left: {{ investment_left }} TAKA</b></p>
+                    </div>
+                </div>
+            </div>
+      
+            <!-- Card 2 -->
+            <div class="col-md-6">
+                <div class="card text-center shadow-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">ADD NEW EXPENSE</h5>
+                        <form method="post">{%csrf_token%}<input type="hidden" name="query" value="cost"><input class="form-control" name="amount" placeholder="Amount" type="number"><input placeholder="Reason" name="reason" class="form-control" type="text"><button type="submit" class="register-btn">ADD EXPENSE</button></form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="row mt-5">
+        <!-- Card 1 -->
+        <div class="col-md-12">
+            <div class="card text-center shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Past Orders</h5><br>
+                    <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th scope="col">Order ID</th>
+                            <th scope="col">Order Date</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for order in orders %}
+                          <tr>
+                            <td>00{{order.id}}</td>
+                            <td>{{order.order_date.date}}</td>
+
+                            {% if order.is_printed %}
+                            <td>Printed</td>
+                            {% elif order.is_shipped %}
+                            <td>Shipped</td>
+                            {% elif order.order_confirmed %}
+                            <td>Confirmed</td>
+                            {% elif order.is_cancel %}
+                            <td>Calcelled</td>
+                            {% else %}
+                            <td>Pending Confirmation</td>
+                            {% endif %}
+
+                            {% if order.order_confirmed %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'order_cancel' order.id %}"><button type="button" class="btn btn-danger">Cancel</button></a></td>
+                            {% elif order.is_printed %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a></td>
+                            {% elif order.is_shipped %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a></td>
+                            {% elif order.is_cancel %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a></td>
+                            {% else %}
+                            <td><a href="{% url 'order_verify' order.id %}"><button type="button" class="btn btn-warning">PAID</button></a> <a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'order_cancel' order.id %}"><button type="button" class="btn btn-danger">Cancel</button></a></td>
+                            {% endif %}
+
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Card 1 -->
+        <div class="col-md-12">
+            <div class="card text-center shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Vendor Pending Verification</h5><br>
+                    <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Brand Name</th>
+                            <th scope="col">Page Link</th>
+                            <th scope="col">NID</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for vendor in pending_vendors %}
+                          <tr>
+                            <td>{{vendor.name}}</td>
+                            <td>{{vendor.brand_name}}</td>
+                            <td><a href="//{{vendor.page_link}}">Link</a></td>
+                            <td><a href="{{vendor.nid.url}}" download="">Download</a></td>
+                            <td><a href="{% url 'confirm_vendor' vendor.id %}"><button class="btn btn-success">Verify</button></a></td>
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><br><br><br>
+
+{% else %}
+
+
+<div class="container">
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <div class="row mt-5">
+        <!-- Card 1 -->
+        <div class="col-md-12">
+            <div class="card text-center shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Printing Queue</h5><br>
+                    <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th scope="col">Order ID</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for order in orders %}
+                          <tr>
+                            {% if order.is_printed %}
+                            <td>00{{order.id}}</td>
+                            <td>Printed</td>
+                            {% elif order.order_confirmed %}
+                            <td>00{{order.id}}</td>
+                            <td>Confirmed</td>
+                            {% endif %}
+
+                            {% if order.order_confirmed %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'printed' order.id %}"><button type="button" class="btn btn-danger">Mark As Printed</button></a></td>
+                            {% elif order.is_printed %}
+                            <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'shipped' order.id %}"><button type="button" class="btn btn-danger">Mark As Shipped</button></a></td>                           
+                            {% endif %}
+
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><br><br><br>
+
+
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -11,7 +11,9 @@ from datetime import datetime, timedelta
 from django.core.wsgi import get_wsgi_application
 from django.utils import timezone
 from django.conf import settings
-
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 
 
@@ -46,7 +48,7 @@ def clear_backend(request):
         Order.objects.filter(is_shipped=True, order_date__lte=seven_days_ago).delete()
         Order.objects.filter(is_cancel=True, order_date__lte=seven_days_ago).delete()
 
-    return redirect('manager')
+    return HttpResponseRedirect(reverse('manager'))
 
 
 @login_required(login_url='login')
@@ -64,8 +66,8 @@ def adminpanel(request):
             product = Product.objects.get(id=request.POST['product_id'])
             quantity = int(request.POST['quantity'])
             product.available += quantity
-            company.cost += quantity * product.buying_price
-            company.profit -= quantity * product.buying_price
+            # company.cost += quantity * product.buying_price
+            # company.profit -= quantity * product.buying_price
             product.save()
             company.save()
         elif request.POST['query'] == "paper":
@@ -100,8 +102,14 @@ def adminpanel(request):
             company.cost += amount
             company.save()
             cost.save()
+        return HttpResponseRedirect(reverse('manager'))
+
+    total_price = 0
+    for product in Product.objects.all():
+        total_price += product.buying_price*product.available
 
     investment_left = company.investment - total_price 
+
     context = {
         'orders': orders,
         'company': company,
@@ -131,6 +139,11 @@ def paid(request, pk):
     company.total_due_vendors -= due
     company.save()
     vendor.save()
+    subject = "Payment from AVLN"
+    message = f"Dear Vendor, We cleared your due of {due} TAKA, via {vendor.mobile_banking} Number: 0{vendor.mobile_banking_number}."
+    from_email = settings.EMAIL_HOST_USER
+    recipient = [vendor.user.email]
+    send_mail(subject, message, from_email, recipient_list=recipient)
     return redirect('due_list')
 
 
@@ -147,6 +160,11 @@ def shipped(request, pk):
     order.vendor.profile.save()
     company.save()
     messages.success(request, "Status Changed to SHIPPED")
+    subject = f"Order ID: 00{pk} has been Shipped"
+    message = f"Dear Vendor, We shipped your order: 00{pk}, Your profit: {order.vendor_profit} TAKA should be added to the due. Thank you."
+    from_email = settings.EMAIL_HOST_USER
+    recipient = [order.vendor.email]
+    send_mail(subject, message, from_email, recipient_list=recipient)
     return redirect('manager')
 
 @login_required(login_url='login')
@@ -199,6 +217,11 @@ def userpanel(request):
         user.mobile_banking_number = mobile_banking_number
         user.verification_applied = True
         user.save()
+        subject = "Request for verification Submitted!"
+        message = f"Dear User, Thank you for taking the time to verify. We will review your application and active your panel as soon as possible. Thank you!"
+        from_email = settings.EMAIL_HOST_USER
+        recipient = [request.user.email]
+        send_mail(subject, message, from_email, recipient_list=recipient)
         return redirect('user_panel')
         
 
@@ -211,7 +234,7 @@ def vendor_register(request):
         password1 = request.POST['password']
         password2 = request.POST['password2']
         email = request.POST['email']
-        if User.objects.filter(username=username).exists or User.objects.filter(email=email).exists:
+        if User.objects.filter(username=username).exists():
             messages.error(request, "User Exists")
             return redirect('vendor_register')
         else:
@@ -220,6 +243,11 @@ def vendor_register(request):
                 user.profile.role = 'vendor'
                 user.profile.save()
                 login(request, user)
+                subject = "Welcome to AVLN"
+                message = f"Dear User, Thank you for registering with us. We request you to provide the extra informations listed on your panel to make you verified."
+                from_email = settings.EMAIL_HOST_USER
+                recipient = [user.email]
+                send_mail(subject, message, from_email, recipient_list=recipient)
                 return redirect('user_panel')
             else:
                 messages.error(request, "Passwords don't match")
@@ -238,6 +266,7 @@ def login_view(request):
             return redirect('user_panel')
         else:
             messages.error(request, 'Invalid credentials')
+            return redirect('login')
         
     return render(request, 'core/login.html')
 
@@ -336,6 +365,11 @@ def place_single_order(request):
                 order.vendor_profit = vendor_profit
                 order.profit = profit
                 order.save()
+                subject = "Order placed!"
+                message = f"Dear Vendor, Your order: 00{order.id} has been successfully placed. Please pay the advanced payment to confirm your order."
+                from_email = settings.EMAIL_HOST_USER
+                recipient = [vendor.email]
+                send_mail(subject, message, from_email, recipient_list=recipient)
                 return redirect('order_confirm', order.id)
             else:
                 messages.error('quantity', 'Not enough stock available for this product.')
@@ -367,17 +401,20 @@ def order_verify(request, pk):
 def order_cancel(request, pk):
     order = Order.objects.get(id=pk)
     product = order.product
+    company = Company.objects.get(id=1)
     if order.is_printed or order.is_shipped:
         messages.error(request, "Sorry, order can't be cancelled.")
         return redirect('user_panel')
     else:
         if order.order_confirmed == True:
             order.vendor.profile.due += order.advance_amount
+            company.total_due_vendors += order.advance_amount
         order.is_cancel = True
         order.order_confirmed = False
         product.available += order.quantity
         product.save()
         order.save()
+        company.save()
         order.vendor.profile.save()
 
     messages.error(request, "Order cancelled.")
@@ -416,7 +453,7 @@ def update_profile(request):
         profile.save()
 
         messages.success(request, "Profile updated successfully!")
-        return redirect('update_profile')
+        return redirect ('update_profile')
     
     return render(request, 'core/update.html', {'profile': profile, 'query': 'profile'})
 
@@ -465,7 +502,7 @@ def ink_use(request, pk):
         company.profit -= 600
     
     company.save()
-    return redirect('manager')
+    return HttpResponseRedirect(reverse('manager'))
 
 
 
@@ -480,7 +517,7 @@ def product_waste(request, pk):
     company.profit -= 190
     company.save()
     product.save()
-    return redirect('manager')
+    return HttpResponseRedirect(reverse('manager'))
 
 
 @login_required(login_url='login')
@@ -496,7 +533,7 @@ def stock_waste(request, pk):
         company.waste += 15
         company.profit -= 15
     company.save()
-    return redirect('manager')
+    return HttpResponseRedirect(reverse('manager'))
 
 
 @login_required(login_url='login')
@@ -504,4 +541,53 @@ def confirm_vendor(request, pk):
     vendor = Profile.objects.get(id=pk)
     vendor.is_verified = True
     vendor.save()
+    subject = "Your Panel is now ACTIVE!"
+    message = f"Dear Vendor, We reviewed and confirmed your verification reqeuest. You can place order from your panel. Thank you."
+    from_email = settings.EMAIL_HOST_USER
+    recipient = [vendor.user.email]
+    send_mail(subject, message, from_email, recipient_list=recipient)
     return redirect('manager')
+
+
+def reset_pass(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        try:
+            user = User.objects.get(username=username)
+        except:
+            user = None
+
+        if user:
+            subject = "Your Password Reset Link!"
+            message = f"Your password reset link - http://127.0.0.1:8000/reset-confirm32493847957834973459fsdlfjkasgsghkuj2kj343h24ksjdhfasdf/{user.id}"
+            from_email = settings.EMAIL_HOST_USER
+            recipient = [user.email]
+            send_mail(subject, message, from_email, recipient_list=recipient)
+            messages.success(request, 'We have sent you the reset link, in your registered email.')
+            return redirect('reset_pass')
+
+        else:
+            messages.success(request, 'User does not exists.')
+            return redirect('reset_pass')
+
+    return render(request, 'core/password_reset_form.html')
+
+
+def reset_confirm(request, pk):
+
+    id = int(pk)
+
+    if request.method == 'POST':
+        user = User.objects.get(id=id)
+        password = request.POST['password']
+        password1 = request.POST['password1']
+        if password == password1:
+            user.set_password(password)
+            user.save()
+            return redirect('login')
+        else:
+            messages.success(request, "Passwords don't match.")
+            return redirect('reset_confirm', pk=id)
+
+
+    return render(request, 'core/password_reset_confirm.html')

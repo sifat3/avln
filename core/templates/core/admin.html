@@ -285,7 +285,7 @@
                             {% elif order.is_cancel %}
                             <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a></td>
                             {% else %}
-                            <td><a href="{% url 'order_verify' order.id %}"><button type="button" class="btn btn-warning">PAID</button></a> <a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'order_cancel' order.id %}"><button type="button" class="btn btn-danger">Cancel</button></a></td>
+                            <td>{% if order.advance_paid %}<a href="{% url 'order_verify' order.id %}"><button type="button" class="btn btn-warning">PAID</button></a>{% endif %} <a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'order_cancel' order.id %}"><button type="button" class="btn btn-danger">Cancel</button></a></td>
                             {% endif %}
 
                           </tr>

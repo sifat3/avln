@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.userpanel, name='user_panel'),
@@ -25,6 +26,8 @@ urlpatterns = [
     path('confirm-order-verified/<str:pk>', views.order_verify, name='order_verify'),
     path('confirm-vendor/<str:pk>', views.confirm_vendor, name='confirm_vendor'),
     path('clear-backend', views.clear_backend, name='clear_backend'),
+    path('reset_pass', views.reset_pass, name='reset_pass'),
+    path('reset-confirm32493847957834973459fsdlfjkasgsghkuj2kj343h24ksjdhfasdf/<str:pk>', views.reset_confirm, name='reset_confirm'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

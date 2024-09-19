@@ -44,8 +44,12 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return self.name + " - " + self.color + " - " + self.size
-    
-total_price = Product.objects.aggregate(total=Sum(F('buying_price')*F('available')))['total']
+
+# total_price = Product.objects.aggregate(total=Sum(F('buying_price')*F('available')))['total']
+    # def calculate_total_price():
+    #     return Product.objects.aggregate(
+    #         total=Sum(F('buying_price') * F('available'))
+    #     )['total']
 
 class Profile(models.Model):
     ROLE_CHOICES = [
@@ -69,7 +73,7 @@ class Profile(models.Model):
     total_profit = models.FloatField(default=0)
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
-    
+
 
 
 class Order(models.Model):
@@ -102,3 +106,6 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} by {self.vendor.username} for {self.product.name}"
+    
+    class Meta:
+        ordering = ('-order_date',)

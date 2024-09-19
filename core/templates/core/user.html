@@ -208,7 +208,7 @@
                             {% elif order.is_cancel %}
                             <td><a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a></td>
                             {% else %}
-                            <td><a href="{% url 'order_confirm' order.id %}"><button type="button" class="btn btn-success">Confirm</button></a> <a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'order_cancel' order.id %}"><button type="button" class="btn btn-danger">Cancel</button></a></td>
+                            <td>{% if order.advance_paid == False %}<a href="{% url 'order_confirm' order.id %}"><button type="button" class="btn btn-success">Confirm</button></a>{% endif %} <a href="{% url 'order_details' order.id %}"><button type="button" class="btn btn-success">View</button></a> <a href="{% url 'order_cancel' order.id %}"><button type="button" class="btn btn-danger">Cancel</button></a></td>
                             {% endif %}
                           </tr>
                         {% endfor %}
@@ -454,7 +454,7 @@
     </div>
   </section>
 
-<section class="container mt-5">
+<section class="container mt-5" style="text-align: center;">
   <h2 class="section-heading">Our Specialities</h2>
   <div class="row text-center">
     <div class="col-md-4">
